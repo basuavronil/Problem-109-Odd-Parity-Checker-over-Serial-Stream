@@ -1,8 +1,8 @@
 module odd_parity_checker (
     input  wire clk,
-    input  wire rst,     // synchronous reset, active high
-    input  wire bit_in,  // serial input bit
-    output wire parity_odd // 1 if number of 1s seen so far is odd
+    input  wire rst,        // Active-high asynchronous reset
+    input  wire bit_in,     // Serial input bit
+    output wire parity_odd  // 1 if number of 1s seen so far is odd
 );
 
     // Two states: EVEN (even number of 1s seen) and ODD (odd number of 1s seen)
@@ -10,10 +10,11 @@ module odd_parity_checker (
     localparam EVEN = 1'b0;
     localparam ODD  = 1'b1;
 
-    always @(posedge clk) begin
-        if (rst)
+    // Asynchronous Reset Logic
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
             state <= EVEN;
-        else begin
+        end else begin
             case (state)
                 EVEN: state <= bit_in ? ODD  : EVEN;
                 ODD : state <= bit_in ? EVEN : ODD;
@@ -21,7 +22,7 @@ module odd_parity_checker (
         end
     end
 
-    // Output is high whenever we're in the ODD state
+    // Output logic
     assign parity_odd = (state == ODD);
 
 endmodule
